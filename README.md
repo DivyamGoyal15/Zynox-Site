@@ -257,7 +257,3 @@ If you're adding features:
 * Admin panel
 
 ---
-
-## 🔗 Credits
-
-Built for Discord bot developers who want something better than generic templates.
