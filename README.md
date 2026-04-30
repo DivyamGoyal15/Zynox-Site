@@ -37,9 +37,6 @@ This is not a basic landing page — it's a **fully customizable, multi-page sys
   ├── commands.json
   └── reviews.json
 
-/components             # Reusable UI components
-/pages or /app          # Routing system
-/public                 # Static assets
 ```
 
 ---
