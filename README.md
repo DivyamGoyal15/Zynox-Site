@@ -13,7 +13,7 @@ This is not a basic landing page — it's a **fully customizable, multi-page sys
 * ⚙️ Central config system 
 * 🧩 Modular component architecture
 * 📄 Markdown-based pages (Privacy, TOS, Features)
-* 📊 Dynamic commands system (JSON-based)
+* 📊 Dynamic commands system
 * 🔍 Command search + filtering
 * 🌐 Multi-page routing
 * 📴 Page enable/disable system
