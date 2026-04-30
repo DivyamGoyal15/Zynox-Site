@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zynox — The Ultimate Discord Guardian</title>
+  <meta name="description" content="Advanced protection, moderation, logging & automation — all in one powerhouse Discord bot." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #a855f7;
+      --accent: #22d3ee;
+      --bg: #060813;
+      --bg2: #0d1020;
+      --surface: rgba(255,255,255,0.04);
+      --surface2: rgba(255,255,255,0.07);
+      --border: rgba(255,255,255,0.08);
+      --border-glow: rgba(99,102,241,0.3);
+      --text: #f1f5f9;
+      --muted: #64748b;
+      --danger: #f43f5e;
+      --success: #10b981;
+      --warn: #f59e0b;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    h1,h2,h3,h4,h5,h6 { font-family: 'Syne', sans-serif; }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* ─── GLOW ORBS ─── */
+    .orb {
+      position: fixed; border-radius: 50%; filter: blur(120px);
+      pointer-events: none; z-index: 0; animation: orbFloat 8s ease-in-out infinite;
+    }
+    .orb-1 { width:600px;height:600px;background:radial-gradient(circle,rgba(99,102,241,0.15),transparent 70%);top:-200px;left:-200px;animation-delay:0s; }
+    .orb-2 { width:500px;height:500px;background:radial-gradient(circle,rgba(168,85,247,0.12),transparent 70%);bottom:-100px;right:-100px;animation-delay:-4s; }
+    .orb-3 { width:400px;height:400px;background:radial-gradient(circle,rgba(34,211,238,0.08),transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-2s; }
+    @keyframes orbFloat {
+      0%,100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(30px,-20px) scale(1.05); }
+      66% { transform: translate(-20px,30px) scale(0.95); }
+    }
+
+    /* ─── NAVBAR ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 2rem;
+      height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(6,8,19,0.7);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none; font-family: 'Syne', sans-serif;
+      font-weight: 800; font-size: 1.3rem; color: var(--text);
+    }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; box-shadow: 0 0 20px rgba(99,102,241,0.5);
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 0.25rem;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; padding: 0.4rem 0.85rem;
+      border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      transition: all 0.2s; position: relative;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); background: var(--surface2); }
+    .nav-links a.active::after {
+      content: ''; position: absolute; bottom: -1px; left: 50%; transform: translateX(-50%);
+      width: 20px; height: 2px; background: var(--primary); border-radius: 2px;
+    }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+      color: white !important; padding: 0.45rem 1rem !important;
+      box-shadow: 0 0 20px rgba(99,102,241,0.3);
+    }
+    .nav-cta:hover { box-shadow: 0 0 30px rgba(99,102,241,0.5) !important; transform: translateY(-1px); }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 4px; color: var(--text); }
+    .mobile-menu {
+      display: none; position: fixed; top: 64px; left: 0; right: 0; z-index: 99;
+      background: rgba(6,8,19,0.97); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border); padding: 1rem;
+      flex-direction: column; gap: 0.25rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      color: var(--muted); text-decoration: none; padding: 0.75rem 1rem;
+      border-radius: 8px; font-size: 0.95rem; font-weight: 500; transition: all 0.2s;
+    }
+    .mobile-menu a:hover { color: var(--text); background: var(--surface2); }
+
+    /* ─── PAGES ─── */
+    .page { display: none; padding-top: 64px; min-height: 100vh; position: relative; z-index: 1; }
+    .page.active { display: block; }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: calc(100vh - 64px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 4rem 1.5rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.3);
+      color: var(--primary); padding: 0.35rem 1rem; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.05em;
+      margin-bottom: 2rem; animation: fadeInUp 0.6s ease both;
+    }
+    .hero-badge::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--primary); animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+    .hero h1 {
+      font-size: clamp(2.8rem,8vw,6rem); font-weight: 800; line-height: 1.05;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 50%, var(--primary) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 1.5rem; animation: fadeInUp 0.7s 0.1s ease both;
+    }
+    .hero-tagline {
+      font-size: clamp(1rem,2.5vw,1.3rem); color: var(--muted); max-width: 600px;
+      line-height: 1.7; margin-bottom: 2.5rem; animation: fadeInUp 0.7s 0.2s ease both;
+    }
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeInUp 0.7s 0.3s ease both;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.8rem 1.8rem; border-radius: 12px; font-size: 0.95rem;
+      font-weight: 600; text-decoration: none; cursor: pointer; border: none;
+      transition: all 0.25s; font-family: 'DM Sans', sans-serif;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white; box-shadow: 0 0 30px rgba(99,102,241,0.4);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(99,102,241,0.6); }
+    .btn-ghost {
+      background: var(--surface2); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
+    .hero-scroll {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+      color: var(--muted); font-size: 0.75rem; animation: fadeIn 1s 1s ease both;
+    }
+    .scroll-arrow { animation: bounceDown 1.5s ease-in-out infinite; }
+    @keyframes bounceDown { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+    /* ─── STATS ─── */
+    .stats-strip {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1px; background: var(--border); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden; margin: 4rem auto;
+      max-width: 800px; animation: fadeInUp 0.7s 0.4s ease both;
+    }
+    .stat-item {
+      background: var(--bg2); padding: 2rem 1.5rem; text-align: center;
+      transition: background 0.3s;
+    }
+    .stat-item:hover { background: var(--surface2); }
+    .stat-num {
+      font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      display: block;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; font-weight: 500; }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 5rem 1.5rem; max-width: 1100px; margin: 0 auto; }
+    .section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--primary); margin-bottom: 0.75rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); max-width: 60px; }
+    .section-title {
+      font-size: clamp(1.8rem,4vw,2.8rem); font-weight: 800; line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .section-sub { color: var(--muted); font-size: 1.05rem; line-height: 1.7; max-width: 580px; }
+
+    /* ─── GLASS CARD ─── */
+    .glass {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s;
+    }
+    .glass:hover {
+      border-color: var(--border-glow);
+      background: var(--surface2);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3), 0 0 0 1px var(--border-glow);
+    }
+
+    /* ─── FEATURE GRID ─── */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; margin-top: 3rem; }
+    .feature-card { padding: 1.75rem; }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; margin-bottom: 1rem;
+    }
+    .feature-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+
+    /* ─── REVIEWS ─── */
+    .reviews-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; margin-top: 3rem; }
+    .review-card { padding: 1.75rem; display: flex; flex-direction: column; gap: 1rem; }
+    .review-header { display: flex; align-items: center; gap: 0.75rem; }
+    .review-avatar {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 1rem; color: white; flex-shrink: 0;
+    }
+    .review-name { font-weight: 700; font-size: 0.95rem; }
+    .review-server { font-size: 0.8rem; color: var(--muted); }
+    .review-stars { color: #fbbf24; font-size: 0.9rem; letter-spacing: 2px; }
+    .review-text { color: var(--muted); font-size: 0.9rem; line-height: 1.7; font-style: italic; }
+    .review-text::before { content: '"'; color: var(--primary); font-size: 1.5rem; line-height: 0; vertical-align: -0.4em; margin-right: 2px; }
+
+    /* ─── COMMANDS PAGE ─── */
+    .commands-header { padding: 3rem 1.5rem 0; max-width: 1100px; margin: 0 auto; }
+    .search-bar {
+      position: relative; max-width: 480px; margin: 2rem 0;
+    }
+    .search-bar input {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.85rem 1rem 0.85rem 3rem;
+      color: var(--text); font-size: 0.95rem; outline: none;
+      font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    }
+    .search-bar input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+    .search-bar input::placeholder { color: var(--muted); }
+    .search-icon {
+      position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+      color: var(--muted); pointer-events: none;
+    }
+    .commands-body { padding: 1rem 1.5rem 4rem; max-width: 1100px; margin: 0 auto; }
+    .cmd-category { margin-bottom: 2.5rem; }
+    .cmd-category-header {
+      display: flex; align-items: center; gap: 0.75rem;
+      margin-bottom: 1rem; padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .cmd-category-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+    }
+    .cmd-category-name { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; }
+    .cmd-category-count { font-size: 0.75rem; color: var(--muted); background: var(--surface); padding: 0.2rem 0.6rem; border-radius: 999px; margin-left: auto; }
+    .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.75rem; }
+    .cmd-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 1rem 1.1rem;
+      display: flex; flex-direction: column; gap: 0.4rem;
+      transition: all 0.2s; position: relative; overflow: hidden;
+    }
+    .cmd-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: var(--cat-color, var(--primary));
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .cmd-card:hover { border-color: var(--border-glow); background: var(--surface2); transform: translateY(-2px); }
+    .cmd-card:hover::before { opacity: 1; }
+    .cmd-usage {
+      font-family: 'Courier New', monospace; font-size: 0.8rem;
+      color: var(--accent); background: rgba(34,211,238,0.08);
+      padding: 0.3rem 0.6rem; border-radius: 6px; display: inline-block;
+      cursor: pointer; transition: all 0.15s; width: fit-content;
+    }
+    .cmd-usage:hover { background: rgba(34,211,238,0.15); }
+    .cmd-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+    .copy-toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
+      background: var(--success); color: white; padding: 0.6rem 1.2rem;
+      border-radius: 10px; font-size: 0.85rem; font-weight: 600;
+      transform: translateY(80px); opacity: 0; transition: all 0.3s;
+      pointer-events: none;
+    }
+    .copy-toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ─── FEATURES PAGE ─── */
+    .features-header { padding: 3rem 1.5rem 0; max-width: 1100px; margin: 0 auto; }
+    .features-body { padding: 2rem 1.5rem 4rem; max-width: 1100px; margin: 0 auto; }
+    .feature-section { margin-bottom: 3rem; }
+    .feature-section h2 {
+      font-size: 1.6rem; font-weight: 800; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 0.75rem;
+    }
+    .feature-section h2 .icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .feature-section h3 { font-size: 1.1rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: var(--accent); }
+    .feature-section p { color: var(--muted); line-height: 1.7; margin-bottom: 1rem; }
+    .feature-section ul { color: var(--muted); padding-left: 1.25rem; margin-bottom: 1rem; }
+    .feature-section ul li { margin-bottom: 0.4rem; line-height: 1.6; }
+    .md-table { width: 100%; border-collapse: collapse; margin: 1.25rem 0; font-size: 0.875rem; }
+    .md-table th {
+      background: rgba(99,102,241,0.12); color: var(--text); font-weight: 700;
+      padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border);
+    }
+    .md-table td { padding: 0.7rem 1rem; color: var(--muted); border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .md-table tr:hover td { background: var(--surface); color: var(--text); }
+    .md-table td strong { color: var(--text); }
+    .md-table td code {
+      background: rgba(34,211,238,0.1); color: var(--accent);
+      padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.8rem;
+    }
+
+    /* ─── POLICY PAGE ─── */
+    .policy-body { padding: 3rem 1.5rem 4rem; max-width: 760px; margin: 0 auto; }
+    .policy-body h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+    .policy-body .effective { color: var(--muted); font-size: 0.85rem; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+    .policy-body h2 { font-size: 1.2rem; font-weight: 700; margin: 2rem 0 0.75rem; color: var(--accent); }
+    .policy-body h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: var(--text); }
+    .policy-body p { color: var(--muted); line-height: 1.8; margin-bottom: 0.75rem; }
+    .policy-body ul { color: var(--muted); padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    .policy-body ul li { margin-bottom: 0.35rem; line-height: 1.7; }
+    .policy-body strong { color: var(--text); }
+    .policy-body hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border); padding: 3rem 1.5rem;
+      background: var(--bg2); position: relative; z-index: 1;
+    }
+    .footer-inner { max-width: 1100px; margin: 0 auto; }
+    .footer-top {
+      display: grid; grid-template-columns: 1.5fr repeat(3, 1fr);
+      gap: 3rem; margin-bottom: 2rem;
+    }
+    .footer-brand { display: flex; flex-direction: column; gap: 0.75rem; }
+    .footer-brand .logo { display: flex; align-items: center; gap: 0.5rem; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; }
+    .footer-brand p { color: var(--muted); font-size: 0.85rem; line-height: 1.6; max-width: 240px; }
+    .footer-col h4 { font-weight: 700; font-size: 0.85rem; margin-bottom: 1rem; color: var(--text); letter-spacing: 0.05em; text-transform: uppercase; }
+    .footer-col a { display: block; color: var(--muted); text-decoration: none; font-size: 0.85rem; margin-bottom: 0.5rem; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom { border-top: 1px solid var(--border); padding-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
+    .footer-bottom p { color: var(--muted); font-size: 0.8rem; }
+    .footer-bottom .badge { background: rgba(99,102,241,0.15); color: var(--primary); padding: 0.2rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── PARTICLES ─── */
+    #particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle, rgba(99,102,241,0.6), transparent);
+      animation: particleFloat linear infinite;
+    }
+    @keyframes particleFloat {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 0.5; }
+      100% { transform: translateY(-100px) scale(1); opacity: 0; }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 480px) {
+      .footer-top { grid-template-columns: 1fr; }
+      .hero-btns { flex-direction: column; align-items: center; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ─── MISC ─── */
+    .gradient-text {
+      background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .tag {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: 600;
+    }
+    .tag-blue { background: rgba(99,102,241,0.15); color: var(--primary); border: 1px solid rgba(99,102,241,0.2); }
+    .tag-green { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .tag-red { background: rgba(244,63,94,0.15); color: var(--danger); border: 1px solid rgba(244,63,94,0.2); }
+  </style>
+</head>
+<body>
+
+<!-- Orbs -->
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
+
+<!-- Particles -->
+<div id="particles"></div>
+
+<!-- Toast -->
+<div class="copy-toast" id="copyToast">✓ Copied to clipboard!</div>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav id="navbar">
+  <a class="nav-logo" href="#" onclick="navigate('home')">
+    <div class="logo-icon">⚡</div>
+    Zynox
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#" onclick="navigate('home')" data-page="home">Home</a></li>
+    <li><a href="#" onclick="navigate('features')" data-page="features">Features</a></li>
+    <li><a href="#" onclick="navigate('commands')" data-page="commands">Commands</a></li>
+    <li><a href="#" onclick="navigate('privacy')" data-page="privacy">Privacy</a></li>
+    <li><a href="#" onclick="navigate('tos')" data-page="tos">Terms</a></li>
+    <li><a class="nav-cta" href="https://discord.com/oauth2/authorize" target="_blank">Invite Bot ⚡</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" onclick="navigate('home');toggleMenu()">🏠 Home</a>
+  <a href="#" onclick="navigate('features');toggleMenu()">✨ Features</a>
+  <a href="#" onclick="navigate('commands');toggleMenu()">⌨️ Commands</a>
+  <a href="#" onclick="navigate('privacy');toggleMenu()">🔒 Privacy</a>
+  <a href="#" onclick="navigate('tos');toggleMenu()">📋 Terms</a>
+  <a href="https://discord.com/oauth2/authorize" target="_blank" style="color:var(--primary)">⚡ Invite Bot</a>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- HOME PAGE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge">⚡ Now Protecting 2,500+ Servers</div>
+    <h1>The Ultimate<br/>Discord Guardian</h1>
+    <p class="hero-tagline">Advanced antinuke protection, automated moderation, comprehensive logging & smart automation — all in one powerhouse bot.</p>
+    <div class="hero-btns">
+      <a class="btn btn-primary" href="https://discord.com/oauth2/authorize" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Invite to Server
+      </a>
+      <a class="btn btn-ghost" href="https://discord.gg/yourserver" target="_blank">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Support Server
+      </a>
+      <a class="btn btn-ghost" href="#" onclick="navigate('commands')">
+        View Commands →
+      </a>
+    </div>
+
+    <!-- Stats Strip -->
+    <div class="stats-strip">
+      <div class="stat-item">
+        <span class="stat-num" id="stat1">0</span>
+        <div class="stat-label">Servers Protected</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="stat2">0</span>
+        <div class="stat-label">Users Served</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="stat3">0</span>
+        <div class="stat-label">Commands</div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" id="stat4">0</span>
+        <div class="stat-label">Uptime</div>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <span>Scroll to explore</span>
+      <div class="scroll-arrow">↓</div>
+    </div>
+  </div>
+
+  <!-- Features Preview -->
+  <section>
+    <div class="section-label">What's Inside</div>
+    <h2 class="section-title reveal">Built for <span class="gradient-text">Serious Servers</span></h2>
+    <p class="section-sub reveal">Every feature crafted to keep your community safe, organized, and thriving.</p>
+
+    <div class="feature-grid">
+      <div class="glass feature-card reveal">
+        <div class="feature-icon" style="background:rgba(244,63,94,0.15);color:#f43f5e;">🛡️</div>
+        <h3>Antinuke Protection</h3>
+        <p>15 protection modules guard your server 24/7. Auto-detect and revert malicious actions within seconds.</p>
+      </div>
+      <div class="glass feature-card reveal">
+        <div class="feature-icon" style="background:rgba(99,102,241,0.15);color:#6366f1;">🤖</div>
+        <h3>Smart Automod</h3>
+        <p>6 configurable rules stop spam, caps abuse, mass mentions, invite links, and more automatically.</p>
+      </div>
+      <div class="glass feature-card reveal">
+        <div class="feature-icon" style="background:rgba(16,185,129,0.15);color:#10b981;">📋</div>
+        <h3>Comprehensive Logging</h3>
+        <p>14 log categories track every event. Webhook-based for speed. Surviving even bot downtime.</p>
+      </div>
+      <div class="glass feature-card reveal">
+        <div class="feature-icon" style="background:rgba(234,179,8,0.15);color:#eab308;">⚡</div>
+        <h3>Powerful Automation</h3>
+        <p>Welcome messages, autorole, autoresponder, giveaways, AFK system, temp voice channels and more.</p>
+      </div>
+      <div class="glass feature-card reveal">
+        <div class="feature-icon" style="background:rgba(168,85,247,0.15);color:#a855f7;">🔨</div>
+        <h3>Advanced Moderation</h3>
+        <p>Full ban/kick/warn/timeout system with reason tracking, warning counts, and interactive modals.</p>
+      </div>
+      <div class="glass feature-card reveal">
+        <div class="feature-icon" style="background:rgba(34,211,238,0.15);color:#22d3ee;">⚙️</div>
+        <h3>Deep Configurability</h3>
+        <p>Per-server prefixes, ignore systems, bypass lists, nightmode, and granular permission controls.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA before reviews -->
+  <section style="text-align:center;padding:2rem 1.5rem;">
+    <div class="glass" style="padding:3rem 2rem;max-width:700px;margin:0 auto;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(168,85,247,0.08));border-color:rgba(99,102,241,0.2);">
+      <h2 style="font-size:clamp(1.5rem,3vw,2rem);font-weight:800;margin-bottom:0.75rem;" class="reveal">Ready to Secure Your Server?</h2>
+      <p style="color:var(--muted);margin-bottom:1.75rem;" class="reveal">Join 2,500+ server admins who trust Zynox to protect their communities.</p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;" class="reveal">
+        <a class="btn btn-primary" href="https://discord.com/oauth2/authorize" target="_blank">⚡ Invite Zynox Free</a>
+        <a class="btn btn-ghost" href="https://discord.gg/yourserver" target="_blank">Join Support Server</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <section>
+    <div class="section-label">Testimonials</div>
+    <h2 class="section-title reveal">Trusted by <span class="gradient-text">Thousands</span></h2>
+    <p class="section-sub reveal">Real feedback from real server owners and admins.</p>
+    <div class="reviews-grid" id="reviewsGrid"></div>
+  </section>
+
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- FEATURES PAGE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page" id="page-features">
+  <div class="features-header">
+    <div class="section-label">Documentation</div>
+    <h1 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:0.75rem;">All <span class="gradient-text">Features</span></h1>
+    <p style="color:var(--muted);max-width:600px;line-height:1.7;">Deep-dive into every capability Zynox brings to your Discord server.</p>
+  </div>
+  <div class="features-body" id="featuresBody"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- COMMANDS PAGE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page" id="page-commands">
+  <div class="commands-header">
+    <div class="section-label">Reference</div>
+    <h1 style="font-size:clamp(2rem,5vw,3rem);font-weight:800;margin-bottom:0.5rem;">Command <span class="gradient-text">Library</span></h1>
+    <p style="color:var(--muted);line-height:1.7;">80+ commands across 10 categories. Click any command to copy.</p>
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="cmdSearch" placeholder="Search commands..." oninput="filterCommands(this.value)" />
+    </div>
+    <div id="searchStats" style="font-size:0.8rem;color:var(--muted);margin-top:0.5rem;"></div>
+  </div>
+  <div class="commands-body" id="commandsBody"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PRIVACY PAGE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page" id="page-privacy">
+  <div class="policy-body" id="privacyBody"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- TOS PAGE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="page" id="page-tos">
+  <div class="policy-body" id="tosBody"></div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<footer id="siteFooter">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-icon" style="width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:1rem;box-shadow:0 0 15px rgba(99,102,241,0.4);">⚡</div>
+          Zynox
+        </div>
+        <p>The ultimate Discord guardian. Protecting communities with enterprise-grade security.</p>
+        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+          <span class="tag tag-green">✓ 99.9% Uptime</span>
+          <span class="tag tag-blue">⚡ Free to Use</span>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Navigate</h4>
+        <a href="#" onclick="navigate('home')">Home</a>
+        <a href="#" onclick="navigate('features')">Features</a>
+        <a href="#" onclick="navigate('commands')">Commands</a>
+      </div>
+      <div class="footer-col">
+        <h4>Links</h4>
+        <a href="https://discord.com/oauth2/authorize" target="_blank">Invite Bot</a>
+        <a href="https://discord.gg/yourserver" target="_blank">Support Server</a>
+        <a href="https://github.com" target="_blank">GitHub</a>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <a href="#" onclick="navigate('privacy')">Privacy Policy</a>
+        <a href="#" onclick="navigate('tos')">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Zynox by Divyam Goyal. All rights reserved.</p>
+      <span class="badge">Made with ❤️ for Discord</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA (embedded — in Next.js, import from JSON files)
+// ═══════════════════════════════════════════════
+
+const COMMANDS_DATA = [
+  { category:"General", icon:"ℹ️", color:"#6366f1", commands:[
+    {name:"help",usage:"$help [command]",description:"Display help menu or info about a specific command"},
+    {name:"stats",usage:"$stats",description:"Show bot statistics and information"},
+    {name:"ping",usage:"$ping",description:"Check bot latency"},
+    {name:"invite",usage:"$invite",description:"Get bot invite link"},
+    {name:"avatar",usage:"$avatar [user]",description:"Display user's avatar"},
+    {name:"server_avatar",usage:"$server_avatar",description:"Display server's avatar/icon"}
+  ]},
+  { category:"Moderation", icon:"🛡️", color:"#f43f5e", commands:[
+    {name:"ban",usage:"$ban <user> [reason]",description:"Ban a user from the server"},
+    {name:"unban",usage:"$unban",description:"Unban a user via interactive modal"},
+    {name:"kick",usage:"$kick <user> [reason]",description:"Kick a user from the server"},
+    {name:"warn",usage:"$warn <user> [reason]",description:"Warn a user (tracks total warnings)"},
+    {name:"timeout",usage:"$timeout <user> <duration> [reason]",description:"Timeout/mute a user temporarily"},
+    {name:"unmute",usage:"$unmute <user>",description:"Remove timeout from a user"},
+    {name:"lock",usage:"$lock [channel]",description:"Lock a channel (prevent sending messages)"},
+    {name:"unlock",usage:"$unlock [channel]",description:"Unlock a channel"},
+    {name:"hide",usage:"$hide [channel]",description:"Hide a channel from @everyone"},
+    {name:"unhide",usage:"$unhide [channel]",description:"Unhide a channel"},
+    {name:"lockall",usage:"$lockall",description:"Lock all channels in the server"},
+    {name:"unlockall",usage:"$unlockall",description:"Unlock all channels"},
+    {name:"role create",usage:"$role create <name> [color]",description:"Create a new role"},
+    {name:"role delete",usage:"$role delete <role>",description:"Delete a role"},
+    {name:"role assign",usage:"$role assign <user> <role>",description:"Assign a role to a user"},
+    {name:"role temp",usage:"$role temp <user> <role> <duration>",description:"Grant temporary role"},
+    {name:"clear",usage:"$clear <amount>",description:"Delete messages (various filters available)"},
+    {name:"clear all",usage:"$clear all <amount>",description:"Clear all messages"},
+    {name:"clear bots",usage:"$clear bots <amount>",description:"Clear bot messages"},
+    {name:"clear user",usage:"$clear user <user> <amount>",description:"Clear messages from specific user"},
+    {name:"clear contains",usage:"$clear contains <text> <amount>",description:"Clear messages containing specific text"},
+    {name:"snipe",usage:"$snipe",description:"View recently deleted messages"},
+    {name:"steal",usage:"$steal <role/channel>",description:"Clone/copy roles or channels"},
+    {name:"nuke",usage:"$nuke",description:"Purge entire channel"}
+  ]},
+  { category:"Antinuke", icon:"🔒", color:"#f97316", commands:[
+    {name:"antinuke",usage:"$antinuke",description:"Show antinuke status and settings"},
+    {name:"antinuke enable",usage:"$antinuke enable",description:"Enable antinuke protection"},
+    {name:"antinuke disable",usage:"$antinuke disable",description:"Disable antinuke protection"},
+    {name:"antinuke wl add",usage:"$antinuke wl add <user>",description:"Add user to whitelist"},
+    {name:"antinuke wl remove",usage:"$antinuke wl remove <user>",description:"Remove user from whitelist"},
+    {name:"antinuke wl list",usage:"$antinuke wl list",description:"List whitelisted users"},
+    {name:"extraowner add",usage:"$extraowner add <user>",description:"Add extra owner permissions"},
+    {name:"extraowner remove",usage:"$extraowner remove <user>",description:"Remove extra owner permissions"},
+    {name:"extraowner list",usage:"$extraowner list",description:"List extra owners"}
+  ]},
+  { category:"Automod", icon:"🤖", color:"#8b5cf6", commands:[
+    {name:"automod",usage:"$automod",description:"Show automod status"},
+    {name:"automod enable",usage:"$automod enable",description:"Enable automod"},
+    {name:"automod disable",usage:"$automod disable",description:"Disable automod"},
+    {name:"automod ignore channel add",usage:"$automod ignore channel add <channel>",description:"Ignore channel for automod"},
+    {name:"automod ignore channel remove",usage:"$automod ignore channel remove <channel>",description:"Remove channel from ignore list"},
+    {name:"automod ignore role add",usage:"$automod ignore role add <role>",description:"Ignore role for automod"},
+    {name:"automod ignore role remove",usage:"$automod ignore role remove <role>",description:"Remove role from ignore list"},
+    {name:"automod punishment",usage:"$automod punishment <rule> <action>",description:"Set punishment for automod rule"}
+  ]},
+  { category:"Automation", icon:"⚡", color:"#eab308", commands:[
+    {name:"welcome",usage:"$welcome",description:"Configure welcome messages"},
+    {name:"autorole",usage:"$autorole",description:"Set up automatic role assignment"},
+    {name:"autoresponder",usage:"$autoresponder",description:"Configure automatic responses"},
+    {name:"autoreact",usage:"$autoreact",description:"Set up automatic reactions"},
+    {name:"giveaway",usage:"$giveaway",description:"Create and manage giveaways"},
+    {name:"afk",usage:"$afk [reason]",description:"Set away from keyboard status"},
+    {name:"tempvc",usage:"$tempvc",description:"Configure temporary voice channels"},
+    {name:"customrole",usage:"$customrole",description:"Create custom roles for users"}
+  ]},
+  { category:"Utility", icon:"🔧", color:"#06b6d4", commands:[
+    {name:"embed",usage:"$embed",description:"Create custom embeds"},
+    {name:"timer",usage:"$timer <duration>",description:"Set a timer"},
+    {name:"map",usage:"$map",description:"Display server map/layout"},
+    {name:"media",usage:"$media",description:"Media-related utilities"},
+    {name:"voice",usage:"$voice",description:"Voice channel utilities"},
+    {name:"notify",usage:"$notify",description:"Notification settings"},
+    {name:"ignore",usage:"$ignore",description:"Configure command ignores"},
+    {name:"blacklist",usage:"$blacklist",description:"Manage blacklists"},
+    {name:"block",usage:"$block",description:"Block users/guilds"}
+  ]},
+  { category:"Logging", icon:"📋", color:"#10b981", commands:[
+    {name:"logging",usage:"$logging",description:"Configure logging settings"},
+    {name:"logs enable",usage:"$logs enable <type>",description:"Enable specific logging type"},
+    {name:"logs disable",usage:"$logs disable <type>",description:"Disable specific logging type"},
+    {name:"logs channel",usage:"$logs channel <type> <channel>",description:"Set logging channel"}
+  ]},
+  { category:"Configuration", icon:"⚙️", color:"#64748b", commands:[
+    {name:"prefix",usage:"$prefix <new_prefix>",description:"Change server prefix"},
+    {name:"topcheck",usage:"$topcheck",description:"Role hierarchy checks"},
+    {name:"nightmode",usage:"$nightmode",description:"Night mode settings"},
+    {name:"server",usage:"$server",description:"Server management commands"}
+  ]},
+  { category:"Owner", icon:"👑", color:"#f59e0b", commands:[
+    {name:"staff add",usage:"$staff add <user>",description:"Add staff member"},
+    {name:"staff remove",usage:"$staff remove <user>",description:"Remove staff member"},
+    {name:"staff list",usage:"$staff list",description:"List staff members"},
+    {name:"sync",usage:"$sync",description:"Sync bot commands"},
+    {name:"restart",usage:"$restart",description:"Restart the bot"},
+    {name:"dm",usage:"$dm <user> <message>",description:"Send DM as bot"},
+    {name:"getinvite",usage:"$getinvite <guild>",description:"Get invite for a guild"},
+    {name:"mutual",usage:"$mutual",description:"Show mutual servers"},
+    {name:"status",usage:"$status",description:"Set bot status"},
+    {name:"emergency",usage:"$emergency",description:"Emergency mode controls"}
+  ]},
+  { category:"Fun & Extra", icon:"✨", color:"#ec4899", commands:[
+    {name:"np",usage:"$np",description:"Now playing (music)"},
+    {name:"Invc",usage:"$Invc",description:"Invite checker"},
+    {name:"report",usage:"$report",description:"Report system"},
+    {name:"extra",usage:"$extra",description:"Extra utilities"},
+    {name:"extraown",usage:"$extraown",description:"Owner extra commands"}
+  ]}
+];
+
+const REVIEWS_DATA = [
+  {serverName:"Nexus Gaming Hub",ownerName:"xShadow",avatarInitial:"N",avatarColor:"#6366f1",memberCount:"12,400",rating:5,review:"Zynox completely replaced 4 separate bots for us. The antinuke system saved our server twice from raider attacks. Absolutely essential."},
+  {serverName:"Anime Realm",ownerName:"SakuraDev",avatarInitial:"A",avatarColor:"#ec4899",memberCount:"8,750",rating:5,review:"The logging system is insanely detailed. We can track everything. Automod caught a mass-mention attack before any mods even saw it. 10/10."},
+  {serverName:"Code Collective",ownerName:"ByteMaster",avatarInitial:"C",avatarColor:"#06b6d4",memberCount:"5,300",rating:5,review:"Setup took 10 minutes. The config system is clean, the commands are intuitive, and support is fast. Best moderation bot I've used in 5 years."},
+  {serverName:"Crypto Lounge",ownerName:"BlockchainBro",avatarInitial:"C",avatarColor:"#f59e0b",memberCount:"19,200",rating:5,review:"Had 3 bot attacks in one month before Zynox. Zero since. The whitelist system is flexible and the antinuke response time is nearly instant."},
+  {serverName:"Study Together",ownerName:"Academix",avatarInitial:"S",avatarColor:"#10b981",memberCount:"3,100",rating:5,review:"Giveaway system, welcome messages, autorole — all work flawlessly. Our new member experience improved dramatically after switching to Zynox."},
+  {serverName:"Valorant Esports",ownerName:"FragKing",avatarInitial:"V",avatarColor:"#f43f5e",memberCount:"27,800",rating:5,review:"The temp VC feature alone is worth it. Players create voice channels on demand, they auto-delete when empty. Our mods love not managing VCs manually."}
+];
+
+const FEATURES_DATA = [
+  {
+    icon:"🛡️", title:"Antinuke Protection System",
+    intro:"Comprehensive protection against malicious server takeovers. 15 modules. Instant response.",
+    subsections:[
+      {title:"Protection Modules",table:{headers:["Module","Description","Actions Taken"],rows:[
+        ["AntiBan","Prevents unauthorized member bans","Reverts ban, bans executor"],
+        ["AntiBotAdd","Blocks unauthorized bot additions","Kicks bot, bans adder"],
+        ["AntiChannelCreate","Prevents unauthorized channel creation","Deletes channel, bans creator"],
+        ["AntiChannelDelete","Prevents unauthorized channel deletion","Recreates channel, bans deleter"],
+        ["AntiChannelUpdate","Prevents unauthorized channel modifications","Reverts changes, bans modifier"],
+        ["AntiGuildUpdate","Protects server settings","Reverts name/icon/banner changes"],
+        ["AntiIntegration","Blocks integration additions","Removes integration, bans adder"],
+        ["AntiKick","Prevents unauthorized kicks","Reverts kick, bans executor"],
+        ["AntiPrune","Prevents member pruning","Bans executor"],
+        ["AntiRoleCreate","Prevents unauthorized role creation","Deletes role, bans creator"],
+        ["AntiRoleDelete","Prevents unauthorized role deletion","Recreates role, bans deleter"],
+        ["AntiRoleUpdate","Prevents unauthorized role modifications","Reverts changes, bans modifier"],
+        ["AntiWebhookCreate","Prevents webhook creation","Deletes webhook, bans creator"],
+        ["AntiWebhookDelete","Prevents webhook deletion","Recreates webhook, bans deleter"],
+        ["AntiWebhookUpdate","Prevents webhook modifications","Reverts changes, bans modifier"]
+      ]}},
+      {title:"Configuration Options",bullets:["Whitelist System: Trusted users who can perform protected actions","Extra Owners: Users with full administrative access","Audit Log Verification: 1-hour timestamp window for action validation","Rate Limiting: 5 requests per 10 seconds with exponential backoff"]}
+    ]
+  },
+  {
+    icon:"🤖", title:"Automod System",
+    intro:"Automated moderation with 6 configurable rules that stop problems before they escalate.",
+    subsections:[
+      {title:"Rules",table:{headers:["Rule","Trigger","Default Punishment","Description"],rows:[
+        ["AntiSpam","5+ messages in 10 seconds","Mute (12 minutes)","Prevents spam messages"],
+        ["AntiCaps",">70% caps in 45+ characters","Mute (1 minute)","Reduces shouting/caps abuse"],
+        ["AntiInvites","Discord invite links","Mute (12 minutes)","Blocks server invites"],
+        ["AntiMassMention","5+ mentions in one message","Mute (3 minutes)","Prevents mass pinging"],
+        ["AntiLink","Generic URLs/links","Mute (configurable)","Blocks unwanted links"],
+        ["AntiEmojiSpam","Excessive emoji usage","Various punishments","Reduces emoji spam"]
+      ]}},
+      {title:"Features",bullets:["Ignored Channels/Roles: Exclude specific areas from automod","Configurable Punishments: Mute, Kick, Ban, or Delete-only","Logging: All automod actions are logged","Message Deletion: Automatic removal of violating messages"]}
+    ]
+  },
+  {
+    icon:"📋", title:"Logging System",
+    intro:"14 specialized logging categories. Webhook-based for maximum reliability and speed.",
+    subsections:[
+      {title:"Logging Categories",table:{headers:["Category","Events Logged","Features"],rows:[
+        ["Message Logs","Deleted/edited messages, attachments","File archiving, embed previews"],
+        ["Moderation Logs","Bans, kicks, mutes, warns","Action details, responsible users"],
+        ["User Logs","Joins, leaves, profile updates","Account age, join history"],
+        ["Role Logs","Role creation/deletion/updates","Permission changes, hierarchy"],
+        ["Channel Logs","Channel management","Category changes, permission overwrites"],
+        ["Server Logs","Guild settings changes","Icon, name, verification level"],
+        ["Webhook Logs","Webhook activities","Creation, deletion, usage"],
+        ["Invite Logs","Invite creation/usage","Tracking and monitoring"],
+        ["Voice Logs","Voice channel activities","Join/leave, mute/deafen"],
+        ["Emoji Logs","Emoji/sticker management","Addition, deletion, usage"],
+        ["Thread Logs","Thread creation/management","Activity tracking"],
+        ["Application Logs","Bot application events","Command usage, errors"],
+        ["Event Logs","General server events","Custom event tracking"],
+        ["VC Logs","Voice channel specifics","Detailed voice activity"]
+      ]}}
+    ]
+  },
+  {
+    icon:"⚡", title:"Automation Features",
+    intro:"Set it and forget it. Powerful automation that keeps your server running smoothly 24/7.",
+    subsections:[
+      {title:"Welcome System",bullets:["Custom Messages with 11 placeholder variables","Embed Support: Rich embed welcome messages","Channel Selection: Designated welcome channels","DM Options: Direct message welcomes"]},
+      {title:"Available Placeholders",table:{headers:["Placeholder","Description"],rows:[
+        ["{user}","User mention"],["{user_name}","Username"],["{user_id}","User ID"],
+        ["{user_nick}","Server nickname"],["{user_avatar}","Avatar URL"],["{user_joindate}","Server join date"],
+        ["{user_createdate}","Account creation date"],["{server_name}","Server name"],["{server_id}","Server ID"],
+        ["{server_membercount}","Member count"],["{server_icon}","Server icon URL"]
+      ]}},
+      {title:"Other Automation",bullets:["Autorole: Auto-assign roles to humans and bots separately","Autoresponder: Keyword-triggered automatic responses","Autoreact: Automatic emoji reactions to messages","Giveaway System: Scheduled giveaways with winner selection","AFK System: Status tracking with auto-responses when mentioned","Temp Voice Channels: Dynamic creation and auto-deletion"]}
+    ]
+  },
+  {
+    icon:"🔨", title:"Moderation Tools",
+    intro:"Enterprise-grade moderation with full audit trails, reason tracking, and smart automation.",
+    subsections:[
+      {title:"Ban & Kick System",bullets:["Reason Tracking: Detailed ban/kick reasons stored","Unban Modal: Interactive unban interface","Audit Integration: Full audit log integration","Warning accumulation with threshold-based auto-actions"]},
+      {title:"Message Management",table:{headers:["Command","Function"],rows:[
+        ["clear all <amount>","Clear all messages"],
+        ["clear bots <amount>","Clear bot messages only"],
+        ["clear user <user> <amount>","Clear from specific user"],
+        ["clear contains <text> <amount>","Clear by content"],
+        ["clear embeds <amount>","Clear embeds only"],
+        ["clear images <amount>","Clear images only"],
+        ["nuke","Completely purge channel"],
+        ["snipe","View recently deleted messages"]
+      ]}}
+    ]
+  },
+  {
+    icon:"🗄️", title:"Performance & Architecture",
+    intro:"Built for scale. Optimized for reliability. Engineered for production Discord environments.",
+    subsections:[
+      {title:"Database Architecture",bullets:["12+ SQLite Databases: Specialized databases per feature","WAL Mode: Concurrent access support","Connection Pooling: Efficient resource usage","Automatic Backups: Built-in backup mechanisms"]},
+      {title:"Performance",bullets:["Auto-Sharding: 2-shard configuration for scaling","Prefix Cache: Fast prefix lookups","Permission Cache: Cached permission checks","Retry Mechanisms: Exponential backoff for API calls"]},
+      {title:"Security",bullets:["GDPR Compliance: Data protection regulations","Rate Limiting: Prevents API abuse","Audit Trail: Complete action logging","Discord TOS: Full Discord compliance"]}
+    ]
+  }
+];
+
+const PRIVACY_CONTENT = `
+<h1>Privacy Policy</h1>
+<p class="effective">Effective Date: January 1, 2025</p>
+<h2>1. Introduction</h2>
+<p>Zynox ("we", "us", or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your information when you use our Discord bot.</p>
+<h2>2. Information We Collect</h2>
+<h3>2.1 Automatically Collected Information</h3>
+<ul>
+<li><strong>Server Data</strong>: Server ID, channel IDs, role IDs, member counts</li>
+<li><strong>User Data</strong>: User IDs, usernames, discriminator, join dates</li>
+<li><strong>Message Data</strong>: Message content (for moderation features), message IDs, timestamps</li>
+<li><strong>Audit Log Data</strong>: Server events, moderation actions, user actions</li>
+<li><strong>Voice Data</strong>: Voice channel join/leave events (no audio content)</li>
+</ul>
+<h3>2.2 Stored Data</h3>
+<p>We store server configurations, user warning counts, whitelist/blacklist entries, logging preferences, and custom automation rules.</p>
+<h3>2.3 Data Retention</h3>
+<p>Data is retained as long as the bot is in your server and deleted when the bot leaves. Moderation logs may be retained for audit purposes.</p>
+<h2>3. How We Use Your Information</h2>
+<h3>3.1 Bot Functionality</h3>
+<ul>
+<li>Provide moderation and protection features</li>
+<li>Process commands and automation rules</li>
+<li>Generate logs for server administration</li>
+<li>Maintain whitelists and permission systems</li>
+</ul>
+<h3>3.2 Service Improvement</h3>
+<p>We analyze usage patterns to improve features and monitor bot performance.</p>
+<h2>4. Data Sharing and Disclosure</h2>
+<h3>4.1 Third-Party Services</h3>
+<ul>
+<li><strong>Discord API</strong>: We interact with Discord's API to function</li>
+<li><strong>No External Sharing</strong>: We do not sell, trade, or share your data with third parties</li>
+</ul>
+<h3>4.2 Legal Requirements</h3>
+<p>We may disclose information if required by law or to protect rights and safety.</p>
+<h2>5. Data Security</h2>
+<p>We employ encrypted database storage, secure API communications, access controls, and regular security audits. In case of a data breach, we will notify affected users promptly.</p>
+<h2>6. User Rights</h2>
+<ul>
+<li>Server administrators can request data deletion or export</li>
+<li>Remove the bot from your server to delete associated data</li>
+<li>Contact us for manual data removal requests</li>
+<li>Disable specific features to limit data collection</li>
+</ul>
+<h2>7. Children's Privacy</h2>
+<p>The Bot is not intended for children under 13. We do not knowingly collect personal information from children under 13.</p>
+<h2>8. Contact Us</h2>
+<ul>
+<li>Discord: divyam#0001</li>
+<li>Email: contact@zynox.bot</li>
+</ul>
+<h2>9. Compliance</h2>
+<p>This policy complies with Discord's Terms of Service, GDPR, CCPA, and other applicable privacy laws.</p>
+<hr/>
+<p><em>Last updated: January 1, 2025</em></p>
+`;
+
+const TOS_CONTENT = `
+<h1>Terms of Service</h1>
+<p class="effective">Effective Date: January 1, 2025</p>
+<h2>1. Acceptance of Terms</h2>
+<p>By inviting Zynox to your Discord server or using its features, you agree to these Terms of Service. If you do not agree, please remove the Bot from your server.</p>
+<h2>2. Description of Service</h2>
+<p>Zynox is a Discord bot providing server protection, automated moderation, logging, and various utility commands.</p>
+<h2>3. User Responsibilities</h2>
+<h3>3.1 Server Ownership</h3>
+<ul>
+<li>You must be a server administrator or have permission to add bots</li>
+<li>You are responsible for complying with Discord's Terms of Service</li>
+</ul>
+<h3>3.2 Usage Guidelines</h3>
+<ul>
+<li>Use the Bot only for lawful purposes</li>
+<li>Do not attempt to abuse, hack, or exploit the Bot</li>
+<li>Respect Discord's rate limits and API guidelines</li>
+<li>Do not use the Bot to violate Discord's Community Guidelines</li>
+</ul>
+<h2>4. Bot Usage Terms</h2>
+<p>The Bot requires certain permissions to function properly. By adding the Bot, you grant these permissions. The Bot collects data as described in our Privacy Policy.</p>
+<h2>5. Prohibited Uses</h2>
+<ul>
+<li>Reverse engineer, decompile, or modify the Bot</li>
+<li>Use the Bot for spam, harassment, or malicious activities</li>
+<li>Use the Bot in violation of Discord's Terms</li>
+<li>Attempt to bypass security features or restrictions</li>
+</ul>
+<h2>6. Intellectual Property</h2>
+<p>All rights reserved by the developer (Divyam Goyal). You retain rights to your server's content but grant us permission to process it for Bot functionality.</p>
+<h2>7. Limitation of Liability</h2>
+<p>The Bot is provided "as is" without warranties. We are not liable for data loss, server damage, third-party actions, or consequential damages.</p>
+<h2>8. Termination</h2>
+<p>You can remove the Bot at any time. We reserve the right to terminate service for violations. Data may be deleted upon Bot removal.</p>
+<h2>9. Contact Information</h2>
+<ul>
+<li>Discord: divyam#0001</li>
+<li>Email: contact@zynox.bot</li>
+</ul>
+<hr/>
+<p><em>Last updated: January 1, 2025</em></p>
+`;
+
+// ═══════════════════════════════════════════════
+// ROUTER
+// ═══════════════════════════════════════════════
+
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('[data-page]').forEach(a => {
+    a.classList.toggle('active', a.dataset.page === page);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(initReveal, 100);
+  return false;
+}
+
+// ═══════════════════════════════════════════════
+// PARTICLES
+// ═══════════════════════════════════════════════
+
+function createParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 4 + 2;
+    p.style.cssText = `
+      width: ${size}px; height: ${size}px;
+      left: ${Math.random() * 100}%;
+      animation-duration: ${Math.random() * 15 + 10}s;
+      animation-delay: ${Math.random() * -20}s;
+      opacity: ${Math.random() * 0.5 + 0.1};
+    `;
+    container.appendChild(p);
+  }
+}
+
+// ═══════════════════════════════════════════════
+// STATS COUNTER
+// ═══════════════════════════════════════════════
+
+function animateCounter(el, target, suffix, duration = 2000) {
+  const start = performance.now();
+  const isNum = !isNaN(parseInt(target));
+  if (!isNum) { el.textContent = target; return; }
+  const num = parseInt(target.replace(/[^0-9]/g, ''));
+  const suf = target.replace(/[0-9,]/g, '');
+  const step = (now) => {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.floor(eased * num);
+    el.textContent = current.toLocaleString() + suf;
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function initStats() {
+  const stats = [
+    { id: 'stat1', val: '2500+' },
+    { id: 'stat2', val: '150000+' },
+    { id: 'stat3', val: '80+' },
+    { id: 'stat4', val: '99.9%' }
+  ];
+  stats.forEach(({ id, val }) => {
+    const el = document.getElementById(id);
+    if (el) animateCounter(el, val, '', 2000);
+  });
+}
+
+// ═══════════════════════════════════════════════
+// REVIEWS
+// ═══════════════════════════════════════════════
+
+function renderReviews() {
+  const grid = document.getElementById('reviewsGrid');
+  if (!grid) return;
+  grid.innerHTML = REVIEWS_DATA.map((r, i) => `
+    <div class="glass review-card reveal" style="animation-delay:${i * 0.1}s">
+      <div class="review-header">
+        <div class="review-avatar" style="background:${r.avatarColor}">${r.avatarInitial}</div>
+        <div>
+          <div class="review-name">${r.serverName}</div>
+          <div class="review-server">Owner: ${r.ownerName} · ${r.memberCount} members</div>
+        </div>
+      </div>
+      <div class="review-stars">${'★'.repeat(r.rating)}</div>
+      <p class="review-text">${r.review}</p>
+    </div>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════
+// COMMANDS
+// ═══════════════════════════════════════════════
+
+function renderCommands(filter = '') {
+  const body = document.getElementById('commandsBody');
+  if (!body) return;
+  const q = filter.toLowerCase().trim();
+  let totalVisible = 0;
+  body.innerHTML = COMMANDS_DATA.map(cat => {
+    const cmds = q ? cat.commands.filter(c => c.name.includes(q) || c.description.toLowerCase().includes(q) || c.usage.toLowerCase().includes(q)) : cat.commands;
+    if (cmds.length === 0) return '';
+    totalVisible += cmds.length;
+    return `
+      <div class="cmd-category">
+        <div class="cmd-category-header">
+          <div class="cmd-category-icon" style="background:${cat.color}22;color:${cat.color};font-size:1.1rem">${cat.icon}</div>
+          <span class="cmd-category-name">${cat.category}</span>
+          <span class="cmd-category-count">${cmds.length} command${cmds.length !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="cmd-grid">
+          ${cmds.map(c => `
+            <div class="cmd-card" style="--cat-color:${cat.color}">
+              <div class="cmd-usage" onclick="copyCmd('${c.usage}')" title="Click to copy">${c.usage}</div>
+              <p class="cmd-desc">${c.description}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+  const stats = document.getElementById('searchStats');
+  if (stats && q) stats.textContent = `${totalVisible} command${totalVisible !== 1 ? 's' : ''} found for "${q}"`;
+  else if (stats) stats.textContent = '';
+}
+
+function filterCommands(val) {
+  renderCommands(val);
+}
+
+function copyCmd(text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+  const toast = document.getElementById('copyToast');
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// ═══════════════════════════════════════════════
+// FEATURES PAGE
+// ═══════════════════════════════════════════════
+
+function renderFeatures() {
+  const body = document.getElementById('featuresBody');
+  if (!body) return;
+  body.innerHTML = FEATURES_DATA.map(section => `
+    <div class="feature-section glass" style="padding:2rem;margin-bottom:1.5rem;">
+      <h2><span class="icon">${section.icon}</span>${section.title}</h2>
+      <p>${section.intro}</p>
+      ${section.subsections.map(sub => `
+        <h3>${sub.title}</h3>
+        ${sub.table ? renderTable(sub.table) : ''}
+        ${sub.bullets ? `<ul>${sub.bullets.map(b => `<li>${b}</li>`).join('')}</ul>` : ''}
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+function renderTable(table) {
+  return `
+    <div style="overflow-x:auto">
+      <table class="md-table">
+        <thead><tr>${table.headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
+        <tbody>${table.rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════
+// POLICY PAGES
+// ═══════════════════════════════════════════════
+
+function renderPolicies() {
+  document.getElementById('privacyBody').innerHTML = PRIVACY_CONTENT;
+  document.getElementById('tosBody').innerHTML = TOS_CONTENT;
+}
+
+// ═══════════════════════════════════════════════
+// SCROLL REVEAL
+// ═══════════════════════════════════════════════
+
+function initReveal() {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal:not(.visible)').forEach(el => obs.observe(el));
+}
+
+// ═══════════════════════════════════════════════
+// MOBILE MENU
+// ═══════════════════════════════════════════════
+
+function toggleMenu() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+
+document.addEventListener('DOMContentLoaded', () => {
+  createParticles();
+  renderReviews();
+  renderCommands();
+  renderFeatures();
+  renderPolicies();
+  setTimeout(initStats, 300);
+  setTimeout(initReveal, 200);
+});
+</script>
+</body>
+</html>

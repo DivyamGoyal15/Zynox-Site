@@ -1,0 +1,56 @@
+[
+  {
+    "serverName": "Nexus Gaming Hub",
+    "ownerName": "xShadow",
+    "avatarInitial": "N",
+    "avatarColor": "#6366f1",
+    "memberCount": "12,400",
+    "rating": 5,
+    "review": "Zynox completely replaced 4 separate bots for us. The antinuke system saved our server twice from raider attacks. Absolutely essential."
+  },
+  {
+    "serverName": "Anime Realm",
+    "ownerName": "SakuraDev",
+    "avatarInitial": "A",
+    "avatarColor": "#ec4899",
+    "memberCount": "8,750",
+    "rating": 5,
+    "review": "The logging system is insanely detailed. We can track everything. Automod caught a mass-mention attack before any mods even saw it. 10/10."
+  },
+  {
+    "serverName": "Code Collective",
+    "ownerName": "ByteMaster",
+    "avatarInitial": "C",
+    "avatarColor": "#06b6d4",
+    "memberCount": "5,300",
+    "rating": 5,
+    "review": "Setup took 10 minutes. The config system is clean, the commands are intuitive, and support is fast. Best moderation bot I've used in 5 years."
+  },
+  {
+    "serverName": "Crypto Lounge",
+    "ownerName": "BlockchainBro",
+    "avatarInitial": "C",
+    "avatarColor": "#f59e0b",
+    "memberCount": "19,200",
+    "rating": 5,
+    "review": "Had 3 bot attacks in one month before Zynox. Zero since. The whitelist system is flexible and the response time for antinuke is nearly instant."
+  },
+  {
+    "serverName": "Study Together",
+    "ownerName": "Academix",
+    "avatarInitial": "S",
+    "avatarColor": "#10b981",
+    "memberCount": "3,100",
+    "rating": 5,
+    "review": "Giveaway system, welcome messages, autorole — all work flawlessly. Our new member experience improved dramatically after switching to Zynox."
+  },
+  {
+    "serverName": "Valorant Esports",
+    "ownerName": "FragKing",
+    "avatarInitial": "V",
+    "avatarColor": "#f43f5e",
+    "memberCount": "27,800",
+    "rating": 5,
+    "review": "The temp VC feature alone is worth it. Players create voice channels on demand, they auto-delete when empty. Our mods love not managing VCs manually."
+  }
+]

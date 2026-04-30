@@ -1,0 +1,162 @@
+[
+  {
+    "category": "General",
+    "icon": "Info",
+    "color": "#6366f1",
+    "commands": [
+      { "name": "help", "usage": "$help [command]", "description": "Display help menu or info about a specific command" },
+      { "name": "stats", "usage": "$stats", "description": "Show bot statistics and information" },
+      { "name": "ping", "usage": "$ping", "description": "Check bot latency" },
+      { "name": "invite", "usage": "$invite", "description": "Get bot invite link" },
+      { "name": "avatar", "usage": "$avatar [user]", "description": "Display user's avatar" },
+      { "name": "server_avatar", "usage": "$server_avatar", "description": "Display server's avatar/icon" }
+    ]
+  },
+  {
+    "category": "Moderation",
+    "icon": "Shield",
+    "color": "#f43f5e",
+    "commands": [
+      { "name": "ban", "usage": "$ban <user> [reason]", "description": "Ban a user from the server" },
+      { "name": "unban", "usage": "$unban", "description": "Unban a user via interactive modal" },
+      { "name": "kick", "usage": "$kick <user> [reason]", "description": "Kick a user from the server" },
+      { "name": "warn", "usage": "$warn <user> [reason]", "description": "Warn a user (tracks total warnings)" },
+      { "name": "timeout", "usage": "$timeout <user> <duration> [reason]", "description": "Timeout/mute a user temporarily" },
+      { "name": "unmute", "usage": "$unmute <user>", "description": "Remove timeout from a user" },
+      { "name": "lock", "usage": "$lock [channel]", "description": "Lock a channel (prevent sending messages)" },
+      { "name": "unlock", "usage": "$unlock [channel]", "description": "Unlock a channel" },
+      { "name": "hide", "usage": "$hide [channel]", "description": "Hide a channel from @everyone" },
+      { "name": "unhide", "usage": "$unhide [channel]", "description": "Unhide a channel" },
+      { "name": "lockall", "usage": "$lockall", "description": "Lock all channels in the server" },
+      { "name": "unlockall", "usage": "$unlockall", "description": "Unlock all channels" },
+      { "name": "role create", "usage": "$role create <name> [color]", "description": "Create a new role" },
+      { "name": "role delete", "usage": "$role delete <role>", "description": "Delete a role" },
+      { "name": "role assign", "usage": "$role assign <user> <role>", "description": "Assign a role to a user" },
+      { "name": "role temp", "usage": "$role temp <user> <role> <duration>", "description": "Grant temporary role" },
+      { "name": "clear", "usage": "$clear <amount>", "description": "Delete messages (various filters available)" },
+      { "name": "clear all", "usage": "$clear all <amount>", "description": "Clear all messages" },
+      { "name": "clear bots", "usage": "$clear bots <amount>", "description": "Clear bot messages" },
+      { "name": "clear user", "usage": "$clear user <user> <amount>", "description": "Clear messages from specific user" },
+      { "name": "clear contains", "usage": "$clear contains <text> <amount>", "description": "Clear messages containing specific text" },
+      { "name": "clear embeds", "usage": "$clear embeds <amount>", "description": "Clear messages with embeds" },
+      { "name": "clear files", "usage": "$clear files <amount>", "description": "Clear messages with files" },
+      { "name": "clear images", "usage": "$clear images <amount>", "description": "Clear messages with images" },
+      { "name": "snipe", "usage": "$snipe", "description": "View recently deleted messages" },
+      { "name": "steal", "usage": "$steal <role/channel>", "description": "Clone/copy roles or channels" },
+      { "name": "nuke", "usage": "$nuke", "description": "Purge entire channel" }
+    ]
+  },
+  {
+    "category": "Antinuke",
+    "icon": "ShieldAlert",
+    "color": "#f97316",
+    "commands": [
+      { "name": "antinuke", "usage": "$antinuke", "description": "Show antinuke status and settings" },
+      { "name": "antinuke enable", "usage": "$antinuke enable", "description": "Enable antinuke protection" },
+      { "name": "antinuke disable", "usage": "$antinuke disable", "description": "Disable antinuke protection" },
+      { "name": "antinuke wl add", "usage": "$antinuke wl add <user>", "description": "Add user to whitelist" },
+      { "name": "antinuke wl remove", "usage": "$antinuke wl remove <user>", "description": "Remove user from whitelist" },
+      { "name": "antinuke wl list", "usage": "$antinuke wl list", "description": "List whitelisted users" },
+      { "name": "extraowner add", "usage": "$extraowner add <user>", "description": "Add extra owner permissions" },
+      { "name": "extraowner remove", "usage": "$extraowner remove <user>", "description": "Remove extra owner permissions" },
+      { "name": "extraowner list", "usage": "$extraowner list", "description": "List extra owners" }
+    ]
+  },
+  {
+    "category": "Automod",
+    "icon": "Bot",
+    "color": "#8b5cf6",
+    "commands": [
+      { "name": "automod", "usage": "$automod", "description": "Show automod status" },
+      { "name": "automod enable", "usage": "$automod enable", "description": "Enable automod" },
+      { "name": "automod disable", "usage": "$automod disable", "description": "Disable automod" },
+      { "name": "automod ignore channel add", "usage": "$automod ignore channel add <channel>", "description": "Ignore channel for automod" },
+      { "name": "automod ignore channel remove", "usage": "$automod ignore channel remove <channel>", "description": "Remove channel from ignore list" },
+      { "name": "automod ignore role add", "usage": "$automod ignore role add <role>", "description": "Ignore role for automod" },
+      { "name": "automod ignore role remove", "usage": "$automod ignore role remove <role>", "description": "Remove role from ignore list" },
+      { "name": "automod punishment", "usage": "$automod punishment <rule> <action>", "description": "Set punishment for automod rule" }
+    ]
+  },
+  {
+    "category": "Automation",
+    "icon": "Zap",
+    "color": "#eab308",
+    "commands": [
+      { "name": "welcome", "usage": "$welcome", "description": "Configure welcome messages" },
+      { "name": "autorole", "usage": "$autorole", "description": "Set up automatic role assignment" },
+      { "name": "autoresponder", "usage": "$autoresponder", "description": "Configure automatic responses" },
+      { "name": "autoreact", "usage": "$autoreact", "description": "Set up automatic reactions" },
+      { "name": "giveaway", "usage": "$giveaway", "description": "Create and manage giveaways" },
+      { "name": "afk", "usage": "$afk [reason]", "description": "Set away from keyboard status" },
+      { "name": "tempvc", "usage": "$tempvc", "description": "Configure temporary voice channels" },
+      { "name": "customrole", "usage": "$customrole", "description": "Create custom roles for users" }
+    ]
+  },
+  {
+    "category": "Utility",
+    "icon": "Wrench",
+    "color": "#06b6d4",
+    "commands": [
+      { "name": "embed", "usage": "$embed", "description": "Create custom embeds" },
+      { "name": "timer", "usage": "$timer <duration>", "description": "Set a timer" },
+      { "name": "map", "usage": "$map", "description": "Display server map/layout" },
+      { "name": "media", "usage": "$media", "description": "Media-related utilities" },
+      { "name": "voice", "usage": "$voice", "description": "Voice channel utilities" },
+      { "name": "notify", "usage": "$notify", "description": "Notification settings" },
+      { "name": "ignore", "usage": "$ignore", "description": "Configure command ignores" },
+      { "name": "blacklist", "usage": "$blacklist", "description": "Manage blacklists" },
+      { "name": "block", "usage": "$block", "description": "Block users/guilds" }
+    ]
+  },
+  {
+    "category": "Logging",
+    "icon": "FileText",
+    "color": "#10b981",
+    "commands": [
+      { "name": "logging", "usage": "$logging", "description": "Configure logging settings" },
+      { "name": "logs enable", "usage": "$logs enable <type>", "description": "Enable specific logging type" },
+      { "name": "logs disable", "usage": "$logs disable <type>", "description": "Disable specific logging type" },
+      { "name": "logs channel", "usage": "$logs channel <type> <channel>", "description": "Set logging channel" }
+    ]
+  },
+  {
+    "category": "Configuration",
+    "icon": "Settings",
+    "color": "#64748b",
+    "commands": [
+      { "name": "prefix", "usage": "$prefix <new_prefix>", "description": "Change server prefix" },
+      { "name": "topcheck", "usage": "$topcheck", "description": "Role hierarchy checks" },
+      { "name": "nightmode", "usage": "$nightmode", "description": "Night mode settings" },
+      { "name": "server", "usage": "$server", "description": "Server management commands" }
+    ]
+  },
+  {
+    "category": "Owner",
+    "icon": "Crown",
+    "color": "#f59e0b",
+    "commands": [
+      { "name": "staff add", "usage": "$staff add <user>", "description": "Add staff member" },
+      { "name": "staff remove", "usage": "$staff remove <user>", "description": "Remove staff member" },
+      { "name": "staff list", "usage": "$staff list", "description": "List staff members" },
+      { "name": "sync", "usage": "$sync", "description": "Sync bot commands" },
+      { "name": "restart", "usage": "$restart", "description": "Restart the bot" },
+      { "name": "dm", "usage": "$dm <user> <message>", "description": "Send DM as bot" },
+      { "name": "getinvite", "usage": "$getinvite <guild>", "description": "Get invite for a guild" },
+      { "name": "mutual", "usage": "$mutual", "description": "Show mutual servers" },
+      { "name": "status", "usage": "$status", "description": "Set bot status" },
+      { "name": "emergency", "usage": "$emergency", "description": "Emergency mode controls" }
+    ]
+  },
+  {
+    "category": "Fun & Extra",
+    "icon": "Sparkles",
+    "color": "#ec4899",
+    "commands": [
+      { "name": "np", "usage": "$np", "description": "Now playing (music)" },
+      { "name": "Invc", "usage": "$Invc", "description": "Invite checker" },
+      { "name": "report", "usage": "$report", "description": "Report system" },
+      { "name": "extra", "usage": "$extra", "description": "Extra utilities" },
+      { "name": "extraown", "usage": "$extraown", "description": "Owner extra commands" }
+    ]
+  }
+]
