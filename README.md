@@ -252,7 +252,7 @@ If you're adding features:
 
 ---
 
-## 💡 Future Improvements (Optional)
+## 💡 Future Improvements
 
 * Dashboard (bot stats API)
 * Live Discord data integration
